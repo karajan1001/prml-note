@@ -1,4 +1,4 @@
-# 介绍
+# 第一章 介绍
 > 模式识别是`利用计算机算法自动从数据中找出规律，并且利用这些规律进行决策比如将数据分类。`
 > 比如一个案例，训练集（*training set*）有N个数字$\\{ X\_{1},X\_{2},\cdots ,X\_{N} \\}$，每个数字有一个手动输入的类别，用向量**t**表示。机器学习算法的作用就是一个输入$X$输出其分类$y$的函数$y\left(x\right)$。函数$y\left(x\right)$的精确表示由训练过程决定。
 
@@ -21,7 +21,7 @@
 2. **决策论**：
 3. **信息论**：
 
-## 多项式拟合
+## 1.1 多项式拟合
 
 这是个回归问题，本质上目标是从收到收到噪音干扰的离散数据点，推测出发现内在规律函数，再根据新数据$\hat{x}$作出对不确定的$\hat{t}$的预测。解决这个问题主要依靠概率论描述这种不确定性和决策论进行最佳预测。
 
@@ -46,60 +46,115 @@ $$\widetilde{E}( \omega) = \frac{1}{2} \sum\_{n=1}^{N} \\{y(x\_{n},\omega) - t\_
 - **岭回归(ridge regression)**：二次正则化方法。
 - **权值衰减(weight decay)**：神经网络中二次正则化方法。
 
-## 概率论
+## 1.2 概率论
 >模式识别的关键是*不确定性*，不确定性来自于测量误差和数据量的大小。为分布建模是模式识别的一个重要工作。概率论可以帮我们量化不确定性。
 
-| y \ x| $x_{1}$| $x_{2}$|  $\cdots$ | $x_{i}$|  $\cdots$ |
-|:----:| :-----:| :-----:| :------: | :------:|: --------:|
-|$y_{1}$|$n_{11}$|$n_{21}$|  $\cdots$ |$n_{i1}$|
-|$y_{2}$|$n_{12}$|$n_{22}$| $\cdots$  |$n_{i2}$|  
+|y\x|$x\_{1}$|$x\_{2}$|$\cdots$|$x\_{i}$|  $\cdots$ |
+|:--:|:--:|:--:|:--:|:--:|:--:|
+|$y\_{1}$|$n\_{11}$|$n\_{21}$|  $\cdots$ |$n\_{i1}$|
+|$y\_{2}$|$n\_{12}$|$n\_{22}$| $\cdots$  |$n\_{i2}$|  
 |$\cdots$| $\cdots$ | $\cdots$ | $\cdots$ | $\cdots$ |
-|$y_{j}$|$n_{1j}$|$n_{2j}$| $\cdots$ |$n_{ij}$| 
+|$y\_{j}$|$n\_{1j}$|$n\_{2j}$| $\cdots$ |$n\_{ij}$| 
 |$\cdots$|
-- **联合概率(joint probability)**：$p\left( X = x_{i}, Y = y_{j} \right) = \frac{n_{ij}}{N}$，xi和yj同时发生的概率
-- **加法定理(sum rule)**：$p\left(X \right) = \sum_{Y}p\left( X , Y  \right)$ 其中 ：$p\left(X \right)$ 又被叫做**边际/边缘概率( marginal probability)**， 如果x，y连续则其形式变为$p(x) = \int p(x,y) dy$
-- **乘法定理(product rule)**：$p\left( X, Y  \right)  = p\left(Y  | X \right) \cdotp\left(X\right)$  其中$p\left( Y |X \right)$ 又被叫做**条件概率(conditional probability)** ，如果x，y连续则其形式变为$p(x,y) = p(y|x) \cdot p(x)$
-- **贝叶斯定理(Bayes's theorem)**：乘法定则的两种分解方法。
+
+- **联合概率(joint probability)**：$p\left( X = x\_{i}, Y = y\_{j} \right) = \frac{n\_{ij}}{N}$，$x\_i$和$y\_j$同时发生的概率
+- **加和规则(sum rule)**：$p\left(X \right) = \sum\_{Y}p\left( X , Y  \right)$ 其中 ：$p\left(X \right)$ 又被叫做**边际/边缘概率( marginal probability)**， 如果x，y连续则其形式变为$p(x) = \int p(x,y) dy$
+- **乘积规则(product rule)**：$p\left( X, Y  \right)  = p\left(Y  | X \right) \cdotp\left(X\right)$  其中$p\left( Y |X \right)$ 又被叫做**条件概率(conditional probability)** ，如果x，y连续则其形式变为$p(x,y) = p(y|x) \cdot p(x)$
+
+> **贝叶斯定理(Bayes's theorem)**：由乘法定理做两种分解可以导出。
 
 $$p\left(Y|X\right) = \frac{p\left(X|Y\right)\cdot p\left(Y\right)  }{p\left(X\right) }$$ 
+
 - **先验概率(prior probability)**：$p\left(Y\right)$ ，测量之前知道的Y发生的概率。
 - **后验概率(posterior probability)**：$p\left(Y|X\right)$，已经观测到X时Y发生的概率。
-- **概率密度(probability density)**：$p\left( x \propto\left( a, b\right)\right) = \int_{a}^{b} p(x)dx$，连续变量的概率。
-- **积累分部方程(cumulative distribution function)**：$P(z) = \int_{-\infty}^{z}p(x)dx$，概率密度的积分，
-- **期望(expectation)**：对于$f(x)$ 的期望 $E[f]$
-	- 连续变量有$E[f] = \frac{1}{N}\sum_{n=1}^{N}f(x_{n})$
-	- 离散变量有$E[f] = \int_x f(x)p(x)dx$
-- **条件期望(conditional expectation)**：$E_{x}[f|y] = \sum_{x}p(x|y)\cdot f(x)$ 多变量时x的期望方程。此方程为是y的函数，随着y变化而变化。
+
+### 1.2.1 概率密度
+
+- **概率密度(probability density)**：$p\left( x \propto\left( a, b\right)\right) = \int\_{a}^{b} p(x)dx$，连续变量的概率。其中$p(x)$非负，而且总和为1。如果将x进行变换$x=g(y)$则，相应的密度函数$p\_x(x)$就变成了$p\_y(y)$，因为积分后概率相等，所以有$$p\_y(y) = p\_x(x)\frac {d\_x}{d\_y} = p\_x(x)|g'(y)|$$
+
+- **积累分部函数(cumulative distribution function)**：$P(z) = \int\_{-\infty}^{z}p(x)dx$，概率密度的积分，
+
+> 对于多连续变量的密度，概率密度由无穷小体积给出。加和规则和乘积规则也要做相应的修改。
+
+
+### 1.2.2 期望和协方差
+
+- **期望(expectation)**：给定分部下，函数的加权平均值。对于$f(x)$ 的期望 $E[f]$
+	- 连续变量有$E[f] = \frac{1}{N}\sum\_{n=1}^{N}f(x\_{n})$
+	- 离散变量有$E[f] = \int\_x f(x)p(x)dx$
+
+> 对于多变量期望需要写明，加权平均的是哪个变量, 比如$E\_x(f(x,y))$加权平均了x，是y的一个函数。
+
+- **条件期望(conditional expectation)**：$E\_{x}[f|y] = \sum\_{x}p(x|y)\cdot f(x)$ 多变量时x的期望方程。此方程为是y的函数，随着y变化而变化。
+
 - **方差(variance)**：$var[f] = E[(f(x) - E[f(x)])^{2}] = E[f(x)^{2}] - E[f(x)]^{2}$。
-- **协方差(covariance)**：协方差$cov[x, y] = E_{x,y}[\{x - E[x]\}\cdot\{y - E[y]\}] = E_{x,y}[x\cdot y] - E[x]\cdot E[y]$ 表示两个变量的变化关联，如果两者独立则协方差为0。
-- **似然函数(likelihood function)**：也就是$p\left(X|Y\right)$。根据贝叶斯定理，因为此时X的值固定P(X)值也就固定，所以有关系：
+
+- **协方差(covariance)**：协方差$cov[x, y] = E\_{x,y}[\\{x - E[x]\\}\cdot\\{y - E[y]\\}] = E\_{x,y}[x\cdot y] - E[x]\cdot E[y]$ 表示两个变量的变化关联，如果两者独立则协方差为0。
+
+- **协方差矩阵**: 对于两个向量，变量两两之间都有协方差，最后的总协方差是一个矩阵
+$$cov[x, y] = E\_{x,y}[\\{x - E[x]\\}\cdot\\{y^T - E[y^T]\\}] = E\_{x,y}[x\cdot y^T] - E[x]\cdot E[y^T]$$
+如果要计算向量各个分量之间自己的协方差可以用 $cov[x] = cov[x,x]$
+
+### 1.2.3 贝叶斯概率
+对于数据集，想要计算生成该数据集的模型参数w的概率。由贝叶斯公式可以得到。
+
+$$p\left(D|w\right) = \frac{p\left(w|D\right)\cdot p\left(D\right)  }{p\left(w\right) }$$ 
+
+- **似然函数(likelihood function)**：也就是$p\left(D|w\right)$。根据贝叶斯定理，因为此时D的值固定所以对所有的w,P(D)值也就固定，所以有关系：
 
 $$后验概率 \propto 似然函数 \times 先验概率$$
-- **误差方程(error function)**：$ - log(似然函数)$ 求似然函数的最大值与求误差方程的最小值是等价过程。
-- **引导程序(bootstrap)**：从原始采样数据中随机取样，每次采样N个数据，这N个数据可以有重复，也不要求每个数据都被采样到。重复此取样动作多次。
-- **independent and identically distributed(i.i.d)**：数据独立从同一个分布中采样得到。 
-- **最大后验概率(maximum posterior)[MAP]**：通过采集到的数据，求后验概率最大时模型的参数值。
+
+- **误差方程(error function)**：$ - log(似然函数)$ 频率学派求似然函数的最大值与求误差方程的最小值是等价过程。
+- **自助法(bootstrap)**：从原始采样数据中随机取样，每次采样N个数据，这N个数据可以有重复，也不要求每个数据都被采样到，重复此取样动作多次，生成多个集合。之后用不同集合互相作为模型准确性的训练检验数据。
+
+频率学家任务，w是固定的，它的值由D来估计。贝叶斯派认为D是固定的，w的不确定性由w的分布表示。贝叶斯学派的优势在于引入先验概率很自然，缺陷在于先验概率缺乏合适的计算方式，如果选择不好还可能带来负效果，而且计算复杂度要更高。不过近年来其影响力在逐渐增加。
+
+### 1.2.4 高斯分布
+
 - **正太分布/高斯分布(normal or Gaussian distribution)**：$\mu$为平均值，而$\sigma^{2}$为方差，$\sigma$为**标准差(standard deviation)**而$\beta = \frac{1}{\sigma^{2}}$为**精密度(precision)**。
 
 $$N(x| \mu, \sigma^{2}) = \frac{1}{(2\pi\sigma^{2})^{\frac{1}{2}}} exp\{ - \frac{1}{2}\sigma^{2}(x-\mu)^{2}\}$$ 
 
+高斯分布的期望为$\mu$，方差为$\sigma^2$，众数与期望相等。
+
 对于D维向量$\widetilde{x}$作为变量的高斯分布的形式变成：
 
-$$N(\widetilde{x}|\widetilde{\mu} ,\widetilde{ \sigma}) = \frac{1}{(2\pi)^{\frac{D}{2}}\widetilde{ \sigma}^{\frac{1}{2}}} exp\{ - \frac{1}{2}\sigma^{2}(\widetilde{x}-\widetilde{\mu})^{T}\sigma^{-1}(\widetilde{x}-\widetilde{\mu})\}$$
+$$N(\widetilde{x}|\widetilde{\mu} ,\widetilde{ \sigma}) = \frac{1}{(2\pi)^{\frac{D}{2}}|\widetilde{ \sigma}|^{\frac{1}{2}}} exp\{ - \frac{1}{2}\sigma^{2}(\widetilde{x}-\widetilde{\mu})^{T}\sigma^{-1}(\widetilde{x}-\widetilde{\mu})\}$$
+
+其中$|\widetilde{\sigma}|$是协方差矩阵的行列式。
+
+- **independent and identically distributed(i.i.d)**：数据独立从同一个分布中采样得到。 因为是独立采样，所以概率为各独立事件之积。所以得到一个数据集$\hat {x}$的概率为
+
+$$N(\hat{x}| \mu, \sigma^{2}) = \prod\_{n=1}^n N(x\_n| \mu, \sigma^{2}) $$ 
+
+- **最大后验概率(maximum posterior)[MAP]**：通过采集到的数据，求后验概率最大时模型的参数值。
 
 > 高斯分布的最大似然方程：
 
-$$lnp(x|\mu,\sigma^2) =  -\frac{1}{2\sigma^{2}}\sum_{n=1}^{N}(x_{n} - \mu)^{2} - \frac{N}{2}ln\sigma^2 - \frac{N}{2}ln(2\pi)$$ 
+$$lnp(x|\mu,\sigma^2) =  -\frac{1}{2\sigma^{2}}\sum\_{n=1}^{N}(x\_{n} - \mu)^{2} - \frac{N}{2}ln\sigma^2 - \frac{N}{2}ln(2\pi)$$ 
+对其求最大值可以得到期望$\mu\_{ML}=\frac 1 {N} \sum \_{n=1}^N x\_n$和方差$\sigma^2\_{ML}=\frac 1 N \sum\_{n=1} ^N(x\_n - \mu\_{ML})^2$ 可以证明$E(\mu\_{ML}) = \mu$ 而 $E(\sigma^2\_{ML}) = \frac {N-1}{N} \sigma^2$
 
-> 最大似然估计系统性的低估了方差，这是引起过拟合的一个原因，因为最大似然估计中的期望不是真实期望。对于多项式拟合问题，假设误差满足高斯分布，均值为$y(x)$,方差为$\beta$。对最大似然对数方程求导可以得到$\mu 和 \sigma$的值，这和最小二乘法求最小值等价。假设模型参数的先验概率为一个期望值为0精密度为$\alpha$的高斯分布，则相当于给最小二乘法增加了一个L2的正则化项。
+> 最大似然估计系统性的低估了方差，这是引起过拟合的一个原因，因为最大似然估计中的期望不是真实期望。
 
-> 频率论和贝叶斯概率论的区别：`频率论认为似然函数中的Y是固定的，每次测量的数据X遵循一定分布，所以会有所不同。贝叶斯概率论认为，每次测得的数据X是固定的，而Y存在一定分布，测量到的X值会消除Y的不确定性。频率经常使用最大似然分布，使用似然函数的最大值作为Y的估计。而贝叶斯概率则引入了先验概率的概念`
 
-## 模型选择
+### 1.2.5 重新考察曲线拟合问题
+
+> 对于多项式拟合问题，假设误差满足高斯分布，均值为$y(x)$,方差为$\beta$。对最大似然对数方程求导可以得到$\mu 和 \sigma$的值，这和最小二乘法求最小值等价，所以平方和误差等价于认为误差为高斯分布。假设模型参数的先验概率为一个期望值为0精密度为$\alpha$的高斯分布，则相当于给最小二乘法增加了一个L2的正则化项。 正则化常数为$\frac \alpha \beta$
+
+### 1.2.6 贝叶斯曲线拟合
+
+> 频率论和贝叶斯概率论的区别：`频率论认为似然函数中的w是固定的，每次测量的数据D遵循一定分布，所以会有所不同。贝叶斯概率论认为，每次测得的数据D是固定的，而w存在一定分布，测量到的D值会消除w的不确定性。纯粹的贝叶斯估计中只会使用加和与乘积规则。预测概率可以写为
+
+$$p(t|x, \hat x, \hat t) = \int p(t | x, \hat w ) p ( w| \hat x, \hat t) dw $$
+
+`todo`:高斯模型贝叶斯求解，进行分析。
+
+## 1.3 模型选择
 
 - **交叉验证(crorss-validation)**：S个数据分成N组每次留下一组作为**验证集(validation set)**，循环使用。交叉验证在数据量大，*超参数(hyper parameter)*多的时候难以使用。
-- **讯息准则(information criteria)**：向最大似然匹配增加一个常数项来降低参数过多时的过拟合效应。有两种比较著名的*Akaike information criterion (AIC) *和 *Bayesian information criterion (BIC)*
-## 维度灾难
+- **讯息准则(information criteria)**：向最大似然匹配增加一个常数项来降低参数过多时的过拟合效应。有两种比较著名的*Akaike information criterion (AIC) *和 *Bayesian information criterion (BIC)* 前者的惩罚项为减去参数个数，后者将在后文中详细讲到。
+
+## 1.4 维度灾难
 > 实际模式识别过程经常遇到高维度，高维度会带来很多困难。如果用分块的办法，高维度的空间需要指数增加的数据来充实。而对于多项式拟合，D维M阶多项式拥有$D^{M}$个参数。
 
 ## 决策论
