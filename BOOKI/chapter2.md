@@ -1,9 +1,9 @@
-
-
-## 概率分布
+# 第二章 概率分布
 - **密度估计(density estimation)**：给定一个变量，和有限采样数据集，估计变量的概率分布。
 
-### 二项变量
+本节先介绍了两种离散变量的分布，二项式分布和多项式分布，然后介绍了离散的高斯分布。这些分布被成为参数分布，他们都属于指数分布簇。最后介绍的是非参数分布，包括最近邻，核方法，直方图等。
+
+# 二元变量
 - **伯诺利分布(Bernoulli distribution)**：对一个二态变量两态$\{0,1\}$。1态的概率为$\mu$。概率分布可以表示为
 
 $$Bern(x\mid \mu) = \mu^{x}(1-\mu)^{1-x}$$
@@ -14,44 +14,36 @@ $$\mu_{ML}=\frac{1}{N}\sum_{n=1}^{N}x_{n}$$
 - **二项式分布(binomial distribution)**：伯诺利分布中x=1的次数为m总次数为N
 
 $$Bin(m\mid N,\mu) = \begin{pmatrix} N \\ m \end{pmatrix} \mu^{m}(1-\mu)^{N-m}$$
+
+## beta分布
 - **贝塔分布(beta distribution)**：一个和二项式分布共轭的先验概率方程。
 
 $$Beta(\mu\mid a, b) = \frac{\Gamma(a+b)}{\Gamma(a)\Gamma(b)}\mu^{a-1}(1-\mu)^{b-1}$$
 
-
 其中**伽马方程(gamma function)** 为：$\Gamma(x) = \int_{0}^{\infty}\mu^{x-1}e^{-\mu}d\mu$ ，ab是先验等效x=1和x=0的次数。
+
+将先验概率和二项似然函数相乘可以得到后验概率分布：
+
+$$Beta(\mu\mid m, l, a, b) = \frac{\Gamma(a+b + m + l)}{\Gamma(a + m)\Gamma(b+l)}\mu^{a + m -1}(1-\mu)^{b + l-1}$$
+
+这也是一个beta分布。
 
 > 可以把每次实验的结果当做后面实验的先验概率。这样形成连续的数据流。当N趋于无穷时，贝叶斯方法和最大似然方法的结果相等。后验概率平均$\theta$的期望对所有数据集合D求期望等于$\theta$的先验概率。
 
 $$E_{\theta}[\theta] = E_{D}[E_{\theta}[\theta\mid D]]$$
 
-## 概率分布
-- **密度估计(density estimation)**：给定一个变量，和有限采样数据集，估计变量的概率分布。
+# 多项式变量
+> 对于多项变量定义其值的方法为$(x_{1},x_{2},x_{3} \cdots x_{K})^{T}$。其期望为$(\mu_{1},\mu_{2},\mu_{3} \cdots \mu_{K})^{T}$ , 其中$x_1, x_2, x_3 ... x_K $ 只有一个为1，其他为0 。
 
-### 二项变量
-- **伯诺利分布(Bernoulli distribution)**：对一个二态变量两态$\{0,1\}$。1态的概率为$\mu$。概率分布可以表示为
+对于单次的观测，其概率为
 
-$$Bern(x\mid \mu) = \mu^{x}(1-\mu)^{1-x}$$
+$$p(x\mid\mu) = \prod_{k=1}^{K} \mu_{k}^{x_k} $$
 
-期望为$\mu$方差为$\mu(1-\mu)$，对其使用最大似然估计可以得到
+这个分布需要满足两个约束 
+$$\sum_{k=1}^K x_k = 1 ; 
+\sum_{k=1}^K \mu_k = 1 $$
 
-$$\mu_{ML}=\frac{1}{N}\sum_{n=1}^{N}x_{n}$$
-- **二项式分布(binomial distribution)**：伯诺利分布中x=1的次数为m总次数为N
-
-$$Bin(m\mid N,\mu) = \begin{pmatrix} N \\ m \end{pmatrix} \mu^{m}(1-\mu)^{N-m}$$
-- **贝塔分布(beta distribution)**：一个和二项式分布共轭的先验概率方程。
-
-$$Beta(\mu\mid a, b) = \frac{\Gamma(a+b)}{\Gamma(a)\Gamma(b)}\mu^{a-1}(1-\mu)^{b-1}$$
-
-
-其中**伽马方程(gamma function)** 为：$\Gamma(x) = \int_{0}^{\infty}\mu^{x-1}e^{-\mu}d\mu$ ，ab是先验等效x=1和x=0的次数。
-
-> 可以把每次实验的结果当做后面实验的先验概率。这样形成连续的数据流。当N趋于无穷时，贝叶斯方法和最大似然方法的结果相等。后验概率平均$\theta$的期望对所有数据集合D求期望等于$\theta$的先验概率。
-
-$$E_{\theta}[\theta] = E_{D}[E_{\theta}[\theta\mid D]]$$
-
-### 多项变量
-> 对于多项变量定义其值的方法为$(x_{1},x_{2},x_{3} \cdots x_{K})^{T}$。其期望为$(\mu_{1},\mu_{2},\mu_{3} \cdots \mu_{K})^{T}$ 对于一个N次独立观测数据集合D其概率为
+对于一个N次独立观测数据集合D其概率为
 
 $$p(D\mid\mu) = \prod_{k=1}^{K} \mu_{k}^{(\sum_{n} x_{nk})} = \prod_{k=1}^{K}\mu_{k}^{m_{k}}$$
 
@@ -60,11 +52,19 @@ $$p(D\mid\mu) = \prod_{k=1}^{K} \mu_{k}^{(\sum_{n} x_{nk})} = \prod_{k=1}^{K}\mu
 $$Mult(m_{1},m_{2}\cdots m_{k}\mid \mu, N) = \begin{pmatrix}N \\ m_{1},m_{2}\cdots m_{k}\end{pmatrix} \prod_{k=1}^{K}\mu_{k}^{m_{k}}$$
 
 约束为$\sum_{k=1}^{K}m_{k} = N$
+
+## 狄利克莱分布
+
 - **狄利克莱分布(Dirichlet distribution)**：类似二项分布中的贝塔分布而引入先验概率
 
 $$Dir(\mu\mid\alpha) = \frac{\Gamma(\alpha_{0})}{ \Gamma(\alpha_{1}) \cdots  \Gamma(\alpha_{k})}\prod_{k=1}^{K}\mu_{k}^{\alpha_{k}-1}$$
+其中$\alpha_0 = \sum_{k=1}^K \alpha_k$
 
-### 高斯分布
+最后的后验概率分布为另一个狄利克莱分布。
+
+$$Dir(\mu\mid D ,\alpha) = \frac{\Gamma(\alpha_{0} + N)}{ \Gamma(\alpha_{1} + m_1) \cdots  \Gamma(\alpha_{k} + m_k )}\prod_{k=1}^{K}\mu_{k}^{\alpha_{k} + m_k -1}$$
+
+# 高斯分布
 >多随机个变量的和，随着随机变量数量增加会趋近于高斯分布。[^问题]
 
 - **马哈拉诺比斯距离(Mahalanobis distance)**：对于高斯分布x作用在
