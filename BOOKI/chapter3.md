@@ -117,30 +117,55 @@ $$\sum_{n=1}^N k(x, x_n) = 1$$
 等价核满足一般的核函数共有的一个重要性质，即 它可以表示为非线性函数的向量ψ(x)的内积的形式，即 $\phi(x) = \beta^{1/2} S_N^{1/2} \phi(x)$
 
 ## 3.4 贝叶斯模型选择
-在贝叶斯理论中对于数据集$D$从模型${M_i}$中某个模型生成，$D$包含(x,t)对。则其概率为
+贝叶斯估计通过对模型参数进行求和积分处理，而不是点估计。这样可以不用验证集，所有数据都被用于训练，避免了交叉验证中重复多次计算问题。比如支持向量机这就是一个贝叶斯模型。在贝叶斯理论中对于数据集$D$从模型${M_i}$中某个模型生成，$D$包含(x,t)对。则其概率为
 
-$$p(M_i|D) = p(M_i)p(D|M_i)$$
+$$p(M_i|D) \sim p(M_i)p(D|M_i)$$
 
-其中$p(D|M_i)$模型证据(**model evidence**)有被称为边缘似然(**marginal likeli**)。两个模型的边缘似然相除$p(D|M_i)/p(D|M_j)$又叫贝叶斯系数(**bayes factor**)。一旦给定了后验概率就能知道在给定数据集，给定x的条件下t的概率
+其中$p(D|M_i)$模型证据(**model evidence**)又被称为边缘似然(**marginal likeli**)。两个模型的边缘似然相除$p(D|M_i)/p(D|M_j)$又叫贝叶斯系数(**bayes factor**)。一旦给定了后验概率就能知道在给定数据集，给定x的条件下t的概率
 
 $$p(t|x,D) = \sum_{i=1}^Lp(t|x,M_i,D)p(M_i|D)$$
-选取可能性最高的模型是这个理论的一个简单近似，也叫模型选择。
-一个简单近似对单个参数
+
+这是一个混合分布，整体的预测为对其中每一项的加权平均。权重就是它们的后验概率。
+
+> 模型空间千千万万，一个简单近似为，选取一个可能性最高的模型自己进行预测，这个做法又叫做模型选择。（这个模型指的是model,不是参数parameter)
+
+此时有，该模型的证据等于该模型下所有参数积分
+
+$$p(D|M_i)=\int p(D|w, M_i)p(w, D) dw $$
+
+假设这个模型的先验概率为$\Delta w_{prior}$宽度的一个尖峰$p(w)\sim \frac 1 {\Delta}$，后验概率为$\Delta w_{posterior}$的一个尖峰，对$w_{MAP}$求积分可即使你看成宽度乘以这个值。
 
 $$p(D) = \int p(D|w)p(w)dw \simeq p(D|w_{MAP})\frac{\Delta w_{posterior}}{\Delta w_{prior}}$$
-取对数对于M个参数
+又因为先验概率分布总是大于后验概率分布，所以$\frac{\Delta w_{posterior}}{\Delta w_{prior}}$总是小于0。取对数对于M个参数
 
 $$p(D) \simeq lnp(D|w_{MAP}) + M ln(\frac{\Delta w_{posterior}}{\Delta w_{prior}})$$
-可以看到随着参数增加第二项减少。简单模型生成的数据集集中在少数范围，复杂模型生成的数据集则分布在一个很广的范围。对于中等复杂度的数据集，简单模型无法生成这个数据集这叫欠拟合，而复杂模型相反，可能的数据集过于广泛，所以缺少足够证据证明现有数据确实是来自这个模型的。
+可以M较少，第一项比较小，看到随着参数增加第二项减少。所以贝叶斯模型选择先天性惩罚那些复杂的模型。
+
+更直观的说简单模型生成的数据集集中在少数范围，复杂模型生成的数据集则分布在一个很广的范围。对于中等复杂度的数据集，简单模型无法生成这个数据集这叫欠拟合，而复杂模型相反，可能的数据集过于广泛，所以缺少足够证据证明现有数据确实是来自这个模型。
 
 ## 3.5 证据近似
-证据近似(**evidence approximation**): 一种近似，将超参设为最大边缘似然方程中的最大值，计算方式是对不同参数$w$积分。边缘超参的最大值为$$p(\alpha, \beta|t) \propto p(t|\alpha,\beta)p(\alpha,\beta)$$  如果$\alpha,\beta$的先验概率是均匀的，则等效为最大化$p(t|\alpha,\beta)$
-### 证据方程的演化
-$$p(t|\alpha, \beta) = \int p(t|w,\beta)p(w|\alpha)dw\\= (\frac{\beta}{2\pi})^{N/2}(\frac{\alpha}{2\pi})^{M/2}\int exp\big\{-E(w)\big\} dw \\ ln(p(t|\alpha,\beta)) = \frac M2 ln\alpha + \frac N2 ln\beta - E(m_N) - \frac12ln|A| - \frac N2 ln(2\pi)$$
-### 最大化证据方程
-最大化$p(t|\alpha,\beta)$可以解出$\alpha和\beta$，和最大似然方程需要验证集不同$\alpha和\beta$都可以直接从数据集中解出。
-### 参数的有效个数
-`未看懂`
+在纯粹的贝叶斯方法中，假设先验概率由超级参数$\alpha, \beta$确定。我们可以通过对超参和参数w积分作出预测，但是通常这种方式没有解析解。
+
+$$p(t|\hat t) = \int \int \int p(t | w, \beta) p(w | \hat t, \alpha , \beta ) p(\alpha, \beta | \hat t) dw d\alpha d\beta$$
+
+证据近似(**evidence approximation**): 一种近似，对w进行积分，通过最大化边缘概率确定$\alpha, \beta$的值。这个方法叫经验贝叶斯，或者叫证据近似。
+
+$$p(t|\hat t) \sim p(t| \hat t, \hat \alpha, \hat \beta)= \int p(t | w, \hat \beta) p(w | \hat t, \hat \alpha , \hat \beta )  dw $$
+
+其中，$\hat \alpha, \hat \beta$ 由最大化概率:
+
+$$p(\alpha, \beta| \hat t) \propto p(\hat t|\alpha,\beta)p(\alpha,\beta)$$  
+确定， 如果$\alpha,\beta$的先验概率是均匀的，则等效为最大化$p(\hat t|\alpha,\beta)$
+### 3.5.1 证据方程的演化
+
+$$p( \hat t |\alpha, \beta) = \int p(\hat t|w,\beta)p(w|\alpha)dw  $$
+$$ p(\hat t | \alpha, \beta) = (\frac{\beta}{2\pi})^{N/2}(\frac{\alpha}{2\pi})^{M/2} \int exp\big\{-E(w)\big\} dw $$
+$$ ln(p(t|\alpha,\beta)) = \frac M2 ln\alpha + \frac N2 ln\beta - E(m_N) - \frac12ln|A| - \frac N2 ln(2\pi)$$
+
+### 3.5.2 最大化证据方程
+最大化$p(t|\alpha,\beta)$可以解出$\alpha和\beta$，和最大似然方程需要验证集不同$\alpha和\beta$都可以直接从数据集中解出。 `未看明白`
+### 3.5.3 参数的有效个数
+`未看明白`
 
 ## 3.6 固定基的局限性
 固定基在数据测量之前就确定，而且会带来维度灾难。不过这些生成的线性基大多具有一定联系，所以实际空间比看起来要小。而且我们可以只使用本地坐标基，这项技术在神经网络和SVM中运用很广。
