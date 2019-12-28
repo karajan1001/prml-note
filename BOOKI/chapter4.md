@@ -110,51 +110,94 @@ $$p(x_n, C_2) = (1 - \pi) N(x_n|\mu_2, \Sigma)$$
 $$\mu_1 = \frac 1 {N_1} \sum_{n=1} N t_nx_1$$
 $$\mu_2 = \frac 1 {N_2} \sum_{n=1} N (1-t_n)x_1$$
 方差满足
-
+$$S=\frac {N_1} N S_1 + \frac {N_2} N S_2$$
+$$S_1=\frac 1 {N_1} \sum_{n\epsilon C_1}(x_n-\mu_1)(x_n -\mu_1)^T$$
+$$S_2=\frac 1 {N_2} \sum_{n\epsilon C_2}(x_n-\mu_2)(x_n -\mu_2)^T$$
 
 ### 4.2.3 离散特征
+考虑离散二元特征，有D个输入，做朴素贝叶斯近似可以得到:
+$$p(x|C_k)=\prod_{i=1}^D\mu_{k_i}^{x_i}(1-mu_{k_i})^{1-x_i}$$
+带入公式可以得到
+$$a_k(x) = \sum_{i=1}^D\{x_i \ln\mu_{k_i} + (1-x_i)\ln(1-\mu_i)  \} + \ln p(C_k)$$
+这也是一个线性函数，可以利用logistic sigmoid 处理。
 
 ### 4.2.4 指数族分布
+无论高斯分布特征还是离散特征后验概率都可以用线性函数 + sigmoid / softmax 激活函数给出。通过假定条件概率密度$p(x|C_k)$是指数分布成员可以得到一般性结论。
+$$p(x|\lambda_k) = h(x)g(\lambda_k)exp\{\lambda_k^T\mu(x)\}$$
+当$\mu_x = x$ 时可以得到
+$$a_k(x) = \frac 1 s \lambda_x^T x + \ln g(\lambda_k) + \ln p(C_k)$$
 
 ## 4.3 概率判别模型
-概率判别模型比概率生成模型简单，分类时准确率更高。
+上一节介绍了从概率触发一大类条件概率密度可以通过线性函数加激活函数解决。本节介绍直接用线性函数加激活函数建模，然后直接用最大似然确定其权重。这是一种判别方法。
 
 ### 4.3.1 固定基方程
-非线性固定基可以使得某些基下不可分的方程线性可分。但是某些情况时不同类型的点混在一起，就算是非线性变换也不能把它们分开。
+使用非线性函数$\phi(x)$对固定基进行线性变换后，上面所有内容依然适用。实际场景中的不同类别概率密度往往会有混叠，固定非线性基函数变换可以让混叠建模更简单，不过固定非线性基函数有它先天的局限性，后面章节中非固定基函数可以克服这些问题。
 
 ### 4.3.2 逻辑回归
+对二分类问题假设类别的后验概率可以写成logistic sigmoid 形式
+$$p(C_k| x) = y(x) = \sigma(w^Tx)$$
 对高斯生成模型，$M$个参数需要$M$个均值和$M^2$个协方差。而逻辑回归只要M个参数。对高斯生成模型，迭代一次就能到最小值，而对于逻辑回归每次迭代迭代量都会改变，只能逼近最小值。
 
-两分类概率方程为 ：$$p(t|w) = \prod_{n=1}^N y_n^{t_n}{1-y_n}^{1-t_n}$$
-误差方程为：$$E(w) = -lnp(t|w) = \sum_{n=1}^N \big\{t_n*y_n + (1-t_n)*(1-y_n)\big\}$$
-多分类概率方程为：
-多分类误差方程为**交叉熵方程(cross entropy)**：$$E(w_1,w_2...w_k) = -lnp(T|w_1,w_2...w_k) =  \sum_{k=1}^K  \sum_{n=1}^N y_{nk}^{t_{nk}}$$
+用最大似然求模型参数两分类概率方程为 
+$$p(t|w) = \prod_{n=1}^N y_n^{t_n}{1-y_n}^{1-t_n}$$
+误差方程为**交叉熵(cross entropy)**损失函数：
+$$E(w) = -lnp(t|w) = \sum_{n=1}^N \big\{t_n*y_n + (1-t_n)*(1-y_n)\big\}$$
+将 $y=\simga(w^Tx)$ 带入可以得到:
 
-**probit regression**：很像逻辑回归，由一个均值为0，方差为1的高斯分布积分得来。
+$$\triangledown E(w) = \sum_{n=1}^N(y_n - t_n) \phi_n $$
+
+其中$y_n$为预测值，这个函数可以通过迭代方法求解最小值。最大似然方法对于线性可分的问题会产生过拟合的现象。还有最大似然法无法区分某个解优于另一个解。通过正则化可以避免这些奇异性。
 
 ### 4.3.3 迭代权重最小平方
+使用牛顿迭代，函数形式为：
+$$w_{new} = w_{old} - H^{-1}\triangledown E(w)$$
+带入可以得到
+$$ \triangledown E(w) = \phi^T\phi w - \phi^Tt$$
+$$H = \triangledown \triangledown E(w) = \phi^T\phi $$
+
+这个方法被称为迭代权重加权最小平方。（IRLS）
 
 ### 4.3.4 多类罗辑回归
 
+多分类误差方程为多分类交叉熵函数：
+$$E(w_1,w_2...w_k) = -lnp(T|w_1,w_2...w_k) =  \sum_{k=1}^K  \sum_{n=1}^N y_{nk}^{t_{nk}}$$
+可以使用IRLS方法求其最小值
+
 ### 4.3.5 probit回归
+不是所有类的条件概率都有如logistic 回归一样简单的形式。考虑如下模型，
+
+$$f(a) = 1 , a >= \theta $$
+$$f(a) = 0 , a < \theta $$
+
+其中$\theta$由分布$p(\theta)$确定如果$p(\theta)$为一个均值为0，方差为1的高斯分布。则称为**probit**回归。
 
 ### 4.3.6 标准链接函数(canonical link functions)
-高斯分布的log似然方程对第n个点的导数同样可以从逻辑回归 交叉熵方程对第n个点求导得出，更一般只要是指数家族都可以
+对于指数簇中误差函数，负对数似然函数。如果我们对数据点n对误差函数的贡献关于参数向量w求导数，那么导数的形式为$y_n - t_n$ 与特征向量$\phi_n$的乘积，其中$y_n = \phi_n x$。可以证明如果假设目标变量的条件分布来自于指数族分布， 对应的激活函数选为标准链接函数(canonical link function)，那么这个结果是一个一般的结果。
+
+$$\triangledown E(w) = \frac 1 s \sum({y_n - t_n})\phi_n$$
+对高斯$s=\beta^{-1}$ 对logistic模型 $s=1$
 
 ## 4.4 拉普拉斯近似
-未知分布，用高斯分布去近似，均值为最大值位置，精度为最大值位置的二阶导数。
+本节介绍了一种广泛使用框架 -- 拉普拉斯近似。 目标是找到定义在一组连续变量密度函数$p(x)$的高斯近似。方法为首先找到$p(z)$的众数$z_0$，然后计算这个位置上的Hessian矩阵H，这样就有近似$q(x) = N(x|z_0, H)$。
 
 ### 4.4.1 模型比较和BIC
- *Bayesian information criterion (BIC)*：将拉普拉斯近似求最大概率的导数，可以得到$$lnp(D) \simeq lnp(D|\theta_{MAP}) + lnp(D|\theta_{MAP}) + \frac M 2ln(2\pi) - \frac 1 2 ln |A| $$
+考虑对数据集D从模型{$M_i$}中做选择，将拉普拉斯近似求最大概率的导数，可以得到:
+ $$\ln p(D) \simeq \ln p(D|\theta_{MAP}) + \ln p(D|\theta_{MAP}) + \frac M 2ln(2\pi) - \frac 1 2 ln |A| $$
+假设参数高斯先验分布比较宽，$\ln(D|\theta_{MAP})$为常数，可以更进一步近似。
+$$\ln p(D) = \ln p(D|\theta_{MAP}) + \frac 1 2 M \ln N$$
+其中 M 为参数数量 N 为数据点数。这个被称为 **贝叶斯信息准则Bayesian information criterion (BIC)**
 
 ## 4.5 贝叶斯逻辑回归
+本节考虑logistic 回归的贝叶斯观点。传统方法无法贝叶斯化，这里采用拉普拉斯近似处理。
 
 ### 4.5.1 拉普拉斯近似
-使用拉普拉斯近似可以得到：后验概率为$$q(w) = N(w|w_{MAP}, S_N)$$
+使用拉普拉斯近似可以得到：后验概率为
+$$q(w) = N(w|w_{MAP}, S_N)$$
 
 ### 4.5.2 预测分布
-给定t预测$C_1$的概率分布：得到$$p(c_1|t) = \int \sigma(a)p(a)da = \int\sigma(a)N(a|\mu_a,\sigma_a^2)da$$
+给定t预测$C_1$的概率分布：得到
+$$p(c_1|t) = \int \sigma(a)p(a)da = \int\sigma(a)N(a|\mu_a,\sigma_a^2)da$$
 使用上文提到的**probit regression**可以得到
 
-$$\int\sigma(a)N(a|\mu,\sigma^2)da \simeq \sigma(k(\sigma^2)\mu) \\
-k(\sigma^2) = (1+\frac{\pi\sigma^2}8)^\frac 1 2$$
+$$\int\sigma(a)N(a|\mu,\sigma^2)da \simeq \sigma(k(\sigma^2)\mu)$$ 
+$$k(\sigma^2) = (1+\frac{\pi\sigma^2}8)^\frac 1 2$$
